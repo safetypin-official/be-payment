@@ -88,7 +88,7 @@ public class MidtransService {
         // --- Construct the request body based on Midtrans docs ---
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("name", subscriptionRequest.getOrDefault("name", "DEFAULT_SUB_NAME"));
-        requestBody.put("amount", "10000"); // Fixed amount
+        requestBody.put("amount", subscriptionRequest.getOrDefault("amount", "10000"));
         requestBody.put("currency", "IDR");
 
         String paymentType = (String) subscriptionRequest.get("payment_type");

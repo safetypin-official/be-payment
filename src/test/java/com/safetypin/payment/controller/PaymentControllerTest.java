@@ -122,7 +122,8 @@ class PaymentControllerTest {
         ResponseEntity<String> response = paymentController.createPayment(requestBody);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertTrue(response.getBody().contains("Failed to create payment token: Midtrans service error"));
+        // Assert exact body content
+        assertEquals("Failed to create payment token: Midtrans service error", response.getBody());
         verify(midtransService).createSnapToken(anyString(), eq(50000.00));
     }
 
