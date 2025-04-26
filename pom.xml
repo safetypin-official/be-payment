@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-dependencies</artifactId>
-			<version>2022.0.4</version>
+			<version>2023.0.1</version> <!-- Updated version -->
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
@@ -63,19 +63,11 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- JUnit 5 for unit and regression testing -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.7.1</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- TestContainers for integration testing -->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
-			<version>1.15.3</version>
+			<version>1.19.7</version> <!-- Updated version -->
 			<scope>test</scope>
 		</dependency>
 
@@ -83,7 +75,7 @@
 		<dependency>
 			<groupId>io.rest-assured</groupId>
 			<artifactId>rest-assured</artifactId>
-			<version>4.4.0</version>
+			<version>5.4.0</version> <!-- Updated version -->
 			<scope>test</scope>
 		</dependency>
 
@@ -91,7 +83,14 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-			<version>2.5.4</version>
+			<!-- Version managed by Spring Boot parent -->
+		</dependency>
+
+		<!-- Midtrans Java Library -->
+		<dependency>
+			<groupId>com.midtrans</groupId>
+			<artifactId>java-library</artifactId>
+			<version>3.0.0</version> <!-- Use the latest appropriate version -->
 		</dependency>
 
 	</dependencies>
@@ -129,12 +128,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.2</version>
+				<version>3.2.5</version> <!-- Updated version -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.22.2</version>
+				<version>3.2.5</version> <!-- Updated version for consistency -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
