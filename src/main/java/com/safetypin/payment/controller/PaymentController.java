@@ -77,18 +77,6 @@ public class PaymentController {
             return ResponseEntity.badRequest().body("Payment type cannot be empty");
         }
 
-        // Temporarily comment out the specific value check for diagnosis
-        /*
-         * String lowerCasePaymentType = paymentType.trim().toLowerCase();
-         * if (!lowerCasePaymentType.equals("credit_card") &&
-         * !lowerCasePaymentType.equals("gopay")) {
-         * return ResponseEntity.badRequest().body("Unsupported payment type: " +
-         * paymentType +
-         * ". Supported types are 'credit_card' and 'gopay'");
-         * }
-         */
-        // NO specific token format validation here - assume basic checks are enough
-
         try {
             // Call the service method. Assume it returns appropriate ResponseEntity (200,
             // 400, 500 etc.)

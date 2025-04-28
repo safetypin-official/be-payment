@@ -169,6 +169,45 @@ class PaymentControllerTest {
     }
 
     @Test
+    void createSubscription_EmptyToken() {
+        requestBody.put("token", "");
+        requestBody.put("payment_type", "credit_card");
+
+        ResponseEntity<String> response = paymentController.createSubscription(requestBody);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Token cannot be empty", response.getBody());
+        verify(midtransService, never()).createSubscription(anyMap());
+    }
+
+    @Test
+    void createSubscription_EmptyPaymentType() {
+        requestBody.put("token", "cc-token-123");
+        requestBody.put("payment_type", "");
+
+        ResponseEntity<String> response = paymentController.createSubscription(requestBody);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Payment type cannot be empty", response.getBody());
+        verify(midtransService, never()).createSubscription(anyMap());
+    }
+
+    @Test
+    void createSubscription_ServiceThrowsException() {
+        requestBody.put("token", "cc-token-123");
+        requestBody.put("payment_type", "credit_card");
+
+        when(midtransService.createSubscription(eq(requestBody)))
+                .thenThrow(new RuntimeException("Service connection error"));
+
+        ResponseEntity<String> response = paymentController.createSubscription(requestBody);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Internal server error during subscription creation.", response.getBody());
+        verify(midtransService).createSubscription(eq(requestBody));
+    }
+
+    @Test
     void createSubscription_ServiceReturnsError() {
         requestBody.put("token", "cc-token-error");
         requestBody.put("payment_type", "credit_card");
