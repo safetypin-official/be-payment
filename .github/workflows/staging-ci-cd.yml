@@ -3,7 +3,7 @@ name: Github CI
 on:
   push:
     branches:
-      - skipped/staging # Please change this when you create the docker image
+      - staging
 
 jobs:
   build:
