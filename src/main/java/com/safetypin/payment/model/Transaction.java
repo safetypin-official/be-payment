@@ -63,5 +63,69 @@ public class Transaction {
     protected void onUpdate() {
         updatedAt = OffsetDateTime.now();
     }
-    
+
+
+
+    // Define the formatter for Midtrans' transaction_time
+    private static final DateTimeFormatter MIDTRANS_DATE_TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // Method to convert a notification payload from Midtrans into a Transaction object
+    public static Transaction fromNotificationPayload(JsonNode notificationPayload) {
+        TransactionBuilder transactionBuilder = Transaction.builder();
+        transactionBuilder.transactionId(notificationPayload.get("transaction_id").asText());
+        transactionBuilder.transactionStatus(notificationPayload.get("transaction_status").asText());
+        transactionBuilder.paymentType(notificationPayload.get("payment_type").asText());
+        transactionBuilder.grossAmount(new BigDecimal(notificationPayload.get("gross_amount").asText()));
+        transactionBuilder.transactionTime(LocalDateTime.parse(
+                notificationPayload.get("transaction_time").asText(), MIDTRANS_DATE_TIME_FORMATTER)
+        );
+        transactionBuilder.orderId(notificationPayload.get("order_id").asText());
+        transactionBuilder.currency(notificationPayload.get("currency").asText());
+
+        Map<String, Object> paymentDetails = new HashMap<>();
+        if (transactionBuilder.paymentType.equals("credit_card")) {
+            for (String field : new String[]{"masked_card", "eci", "card_type", "bank", "approval_code"}) {
+                if (notificationPayload.has(field)) {
+                    paymentDetails.put(field, notificationPayload.get(field).asText());
+                }
+            }
+        } else if (transactionBuilder.paymentType.equals("gopay")) {
+            for (String field : new String[]{"settlement_time"}) {
+                if (notificationPayload.has(field)) {
+                    paymentDetails.put(field, notificationPayload.get(field).asText());
+                }
+            }
+        }
+        transactionBuilder.paymentDetails(paymentDetails);
+
+
+        return transactionBuilder.build();
+    }
+
+    // Method to update the transaction object with the notification payload
+    public void updateFromNotificationPayload(JsonNode notificationPayload) {
+        this.transactionStatus = notificationPayload.get("transaction_status").asText();
+        this.transactionTime = LocalDateTime.parse(
+                notificationPayload.get("transaction_time").asText(), MIDTRANS_DATE_TIME_FORMATTER);
+        this.paymentType = notificationPayload.get("payment_type").asText();
+        this.grossAmount = new BigDecimal(notificationPayload.get("gross_amount").asText());
+        this.orderId = notificationPayload.get("order_id").asText();
+        this.currency = notificationPayload.get("currency").asText();
+
+        if (this.paymentType.equals("credit_card")) {
+            for (String field : new String[]{"masked_card", "eci", "card_type", "bank", "approval_code"}) {
+                if (notificationPayload.has(field)) {
+                    this.paymentDetails.put(field, notificationPayload.get(field).asText());
+                }
+            }
+        } else if (this.paymentType.equals("gopay")) {
+            for (String field : new String[]{"settlement_time"}) {
+                if (notificationPayload.has(field)) {
+                    this.paymentDetails.put(field, notificationPayload.get(field).asText());
+                }
+            }
+        }
+    }
+
 }
