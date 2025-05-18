@@ -70,6 +70,19 @@ public class Transaction {
     private static final DateTimeFormatter MIDTRANS_DATE_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    private static UUID retrieveUserIdIfPresent(JsonNode notificationPayload) {
+        if (!notificationPayload.has("metadata")) return null;
+        JsonNode metadata = notificationPayload.get("metadata");
+
+        if (!metadata.has("extra_info")) return null;
+        JsonNode extraInfo = metadata.get("extra_info");
+
+        // Check if the user_id field is present in the extra_info
+        if (!extraInfo.has("user_id")) return null;
+
+        return UUID.fromString(extraInfo.get("user_id").asText());
+    }
+
     // Method to convert a notification payload from Midtrans into a Transaction object
     public static Transaction fromNotificationPayload(JsonNode notificationPayload) {
         TransactionBuilder transactionBuilder = Transaction.builder();
@@ -82,6 +95,7 @@ public class Transaction {
         );
         transactionBuilder.orderId(notificationPayload.get("order_id").asText());
         transactionBuilder.currency(notificationPayload.get("currency").asText());
+        transactionBuilder.userId(Transaction.retrieveUserIdIfPresent(notificationPayload));
 
         Map<String, Object> paymentDetails = new HashMap<>();
         if (transactionBuilder.paymentType.equals("credit_card")) {
