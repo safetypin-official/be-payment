@@ -1,21 +1,21 @@
 package com.safetypin.payment.config;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import com.midtrans.Config;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 @TestPropertySource(properties = {
-        "midtrans.server.key=test-server-key",
-        "midtrans.client.key=test-client-key",
-        "midtrans.api.url=http://test.api.url",
-        "midtrans.subscription.api.url=http://test.sub.api.url",
-        "midtrans.gopay.callback.url=http://test.gopay.callback.url",
-        "midtrans.get.pay.account.api.url=http://test.getpay.api.url"
+        "midtrans.server.key=testServerKey",
+        "midtrans.client.key=testClientKey",
+        "midtrans.production=false",
+        "midtrans.proxy.enabled=false",
+        "midtrans.proxy.host=testProxyHost",
+        "midtrans.proxy.port=8080"
 })
 class MidtransConfigTest {
 
@@ -23,23 +23,16 @@ class MidtransConfigTest {
     private MidtransConfig midtransConfig;
 
     @Test
-    void testGetters() {
-        assertNotNull(midtransConfig.getServerKey());
-        assertEquals("test-server-key", midtransConfig.getServerKey());
+    void testConfig() {
+        // Verify that the MidtransConfig bean is created successfully
+        assertNotNull(midtransConfig);
 
-        assertNotNull(midtransConfig.getClientKey());
-        assertEquals("test-client-key", midtransConfig.getClientKey());
+        Config config = midtransConfig.configConfig();
 
-        assertNotNull(midtransConfig.getApiUrl());
-        assertEquals("http://test.api.url", midtransConfig.getApiUrl());
 
-        assertNotNull(midtransConfig.getSubscriptionApiUrl());
-        assertEquals("http://test.sub.api.url", midtransConfig.getSubscriptionApiUrl());
-
-        assertNotNull(midtransConfig.getGopayCallbackUrl());
-        assertEquals("http://test.gopay.callback.url", midtransConfig.getGopayCallbackUrl());
-
-        assertNotNull(midtransConfig.getGetPayAccountApiUrl());
-        assertEquals("http://test.getpay.api.url", midtransConfig.getGetPayAccountApiUrl());
+        // Verify that the configuration properties are set correctly
+        assertEquals("testServerKey", config.getServerKey());
+        assertEquals("testClientKey", config.getClientKey());
+        assertFalse(config.isProduction());
     }
 }
