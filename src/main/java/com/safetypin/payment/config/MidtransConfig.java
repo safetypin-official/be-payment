@@ -40,7 +40,7 @@ public class MidtransConfig {
                     .build());
         }
 
-//        config.enableLog(true); // Enable logging for debugging
+        config.enableLog(false); // Enable logging for debugging
 
         return config.build();
     }
