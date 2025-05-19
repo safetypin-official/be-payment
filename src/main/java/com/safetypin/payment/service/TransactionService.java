@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
@@ -35,8 +36,11 @@ public class TransactionService {
         // Set transaction details
         Map<String, Object> transactionDetails = new HashMap<>();
         // include timestamp in order_id and random salt
-        transactionDetails.put("order_id",
-                ("PREMIUM_SUB-" + UUID.randomUUID().toString().substring(0, 8) + "-" + Instant.now().getEpochSecond()));
+        String orderId = "PREMIUM_SUB-"
+                        + UUID.randomUUID().toString().substring(0, 8) + "-"
+                        + Instant.now().getEpochSecond();
+
+        transactionDetails.put("order_id", orderId);
         transactionDetails.put("gross_amount", 69000); // Example amount
 
         // Set enabled payment types
@@ -75,24 +79,43 @@ public class TransactionService {
         Config config = midtransSnapApi.apiConfig();
         config.setPaymentIdempotencyKey(UUID.randomUUID().toString());
 
+        // Testing
+        config.paymentOverrideNotification("https://3fb78849a967ba.lhr.life" + "/payment/notification/push");
+
         // Send request to Midtrans (try 3 times)
         int attempts = 0;
-        while (attempts < 3) {
+        final int MAX_ATTEMPTS = 3;
+        while (attempts < MAX_ATTEMPTS) {
             try {
+                log.info("Attempting to create Midtrans Snap transaction (Attempt {}/{}) for order_id: {}", attempts + 1, MAX_ATTEMPTS, orderId);
                 JSONObject response = midtransSnapApi.createTransaction(requestBody);
-                log.info("Midtrans response: {}", response);
+                log.info("Midtrans Snap API createTransaction successful for order_id: {}. Response: {}", orderId, response.toMap());
                 return response.toMap();
             } catch (MidtransError e) {
-                log.error("Attempt {} failed: {}", attempts+1, e.toString());
+                log.error("Midtrans Snap API createTransaction (Attempt {}/{}) failed for order_id: {}. Error: {}", attempts + 1, MAX_ATTEMPTS, orderId, e.getMessage());
+                if (e.getResponseBody() != null) {
+                    log.error("Midtrans error response body: {}", e.getResponseBody());
+                }
+                if (attempts == MAX_ATTEMPTS - 1) { // Last attempt
+                    throw new PaymentException("Failed to create Snap transaction after " + MAX_ATTEMPTS + " attempts for order_id: " + orderId, e);
+                }
+                // Optional: add a small delay before retrying
+                try {
+                    Thread.sleep(1000L * (attempts + 1)); // e.g., 1s, 2s
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new PaymentException("Snap transaction creation interrupted during retry delay.", ie);
+                }
             }
             attempts++;
         }
-
-        throw new PaymentException("Failed to create transaction");
+        // Should not be reached if MAX_ATTEMPTS > 0 due to throw in loop, but as a fallback:
+        throw new PaymentException("Failed to create Snap transaction after " + MAX_ATTEMPTS + " attempts for order_id: " + orderId);
     }
 
 
     // Handle notification from Midtrans
+    @Transactional
     public void handlePaymentNotification(JsonNode notificationPayload) throws PaymentException {
         try {
             // Check some fields given below, to ensure that the process is successful.
