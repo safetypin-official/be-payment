@@ -5,7 +5,7 @@ import java.util.Map;
 import com.safetypin.payment.dto.PaymentResponse;
 import com.safetypin.payment.dto.UserDetails;
 import com.safetypin.payment.exception.PaymentException;
-import com.safetypin.payment.service.TransactionService;
+import com.safetypin.payment.service.PaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
-    private final TransactionService transactionService;
+    private final PaymentService paymentService;
 
     @Autowired
-    public PaymentController(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
     }
 
     @PostMapping("/create/subscription") // Endpoint for Snap token
@@ -35,7 +35,7 @@ public class PaymentController {
         // Get user ID from authentication context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Map<String, Object> tokens = transactionService.createRecurringTransaction(userDetails);
+        Map<String, Object> tokens = paymentService.createRecurringTransaction(userDetails);
         if (forceGopayDeeplink) {
             tokens.put("redirect_url", tokens.get("redirect_url") + "?gopayMode=deeplink");
         }
