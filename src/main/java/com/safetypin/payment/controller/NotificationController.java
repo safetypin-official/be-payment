@@ -2,7 +2,7 @@ package com.safetypin.payment.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.safetypin.payment.service.MidtransSignatureVerifier;
-import com.safetypin.payment.service.TransactionService;
+import com.safetypin.payment.service.PaymentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,15 +17,15 @@ import java.util.Map;
 public class NotificationController {
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
 
-    private final TransactionService transactionService;
+    private final PaymentService paymentService;
 
     private final MidtransSignatureVerifier midtransSignatureVerifier;
 
     public NotificationController(
-            TransactionService transactionService,
+            PaymentService paymentService,
             MidtransSignatureVerifier midtransSignatureVerifier
     ) {
-        this.transactionService = transactionService;
+        this.paymentService = paymentService;
         this.midtransSignatureVerifier = midtransSignatureVerifier;
     }
 
@@ -42,7 +42,7 @@ public class NotificationController {
         }
 
         // Process the notification payload
-        transactionService.handlePaymentNotification(notificationPayload);
+        paymentService.handlePaymentNotification(notificationPayload);
 
         // Return a response indicating success (200, no retries)
         return ResponseEntity.status(HttpStatus.OK).body("Notification received successfully!!!");
