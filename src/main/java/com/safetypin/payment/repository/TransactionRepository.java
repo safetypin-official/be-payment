@@ -15,4 +15,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     List<Transaction> findByPaymentTypeOrderByUpdatedAt(String paymentType);
 
     List<Transaction> findByTransactionStatusOrderByUpdatedAt(String transactionStatus);
+
+    List<Transaction> findByTransactionIdIsIn(List<String> transactionIds);
 }
